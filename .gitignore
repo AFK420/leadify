@@ -1,0 +1,4 @@
+# Leadify — Gitignore
+.DS_Store
+Thumbs.db
+*.log
