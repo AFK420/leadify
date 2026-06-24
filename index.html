@@ -777,15 +777,15 @@ canvas{display:block}
           </div>
           <div class="form-group">
             <label class="form-label">إنستغرام</label>
-            <input type="text" class="form-input" id="f-instagram" placeholder="@username" dir="ltr">
+            <input type="text" class="form-input" id="f-instagram" placeholder="@username" dir="ltr" onblur="normalizeHandle('f-instagram')">
           </div>
           <div class="form-group">
             <label class="form-label">فيسبوك</label>
-            <input type="text" class="form-input" id="f-facebook" placeholder="@username أو رابط الصفحة" dir="ltr">
+            <input type="text" class="form-input" id="f-facebook" placeholder="@username أو رابط الصفحة" dir="ltr" onblur="normalizeHandle('f-facebook')">
           </div>
           <div class="form-group">
             <label class="form-label">تيك توك</label>
-            <input type="text" class="form-input" id="f-tiktok" placeholder="@username" dir="ltr">
+            <input type="text" class="form-input" id="f-tiktok" placeholder="@username" dir="ltr" onblur="normalizeHandle('f-tiktok')">
           </div>
         </div>
       </div>
@@ -924,19 +924,8 @@ let googleApiKey = ''; // NEVER stored in localStorage
 const SAMPLE_LEADS = [
   { id: uid(), name: "مطعم الأردني الأصيل", type: "مطعم", city: "عمان", owner: "محمد العمري", phone: "+962 6 551 2345", email: "info@alordani.jo", website: "", address: "شارع المدينة المنورة، الوحدات، عمان", instagram: "@alordani_jo", facebook: "@AlOrdaniRest", tiktok: "", websiteStatus: "لا يوجد موقع", tier: "متوسط", leadStatus: "مهتم", priority: "high", score: 75, notes: "صاحبه مهتم جداً، يريد عرض سعر مفصّل", lastContact: "2026-06-20", dateAdded: Date.now() - 86400000 * 5, timeline: [] },
   { id: uid(), name: "كافيه ذا روف", type: "كافيه", city: "عمان", owner: "سارة الخالدي", phone: "+962 7 9876 5432", email: "theroof@gmail.com", website: "", address: "جبل عمان، دوار الكلية، عمان", instagram: "@theroof_amman", facebook: "", tiktok: "@theroof", websiteStatus: "موقع قديم / بحاجة تصميم", tier: "غني / فاخر", leadStatus: "مفاوضات", priority: "high", score: 60, notes: "تريد موقع راقي ومتكامل مع نظام حجز طاولات", lastContact: "2026-06-22", dateAdded: Date.now() - 86400000 * 3, timeline: [] },
-  { id: uid(), name: "محل يحيى للملابس", type: "محل ملابس", city: "الزرقاء", owner: "يحيى نصير", phone: "+962 5 382 1234", email: "", website: "", address: "شارع الملك طلال، وسط المدينة، الزرقاء", instagram: "@yahya_fashion", facebook: "@YahyaFashionJO", tiktok: "", websiteStatus: "لا يوجد موقع", tier: "شعبي / اقتصادي", leadStatus: "جديد", priority: "low", score: 30, notes: "", lastContact: "2026-06-15", dateAdded: Date.now() - 86400000 * 10, timeline: [] },
-  { id: uid(), name: "مركز الخليج للسيارات", type: "محل سيارات", city: "إربد", owner: "أحمد الشوبكي", phone: "+962 2 724 5678", email: "gulf.cars@gmail.com", website: "", address: "شارع الجامعة، إربد", instagram: "", facebook: "@GulfCarsIrbid", tiktok: "", websiteStatus: "لا يوجد موقع", tier: "متوسط", leadStatus: "تم التواصل", priority: "medium", score: 55, notes: "يريد موقع لعرض السيارات المعروضة للبيع", lastContact: "2026-06-18", dateAdded: Date.now() - 86400000 * 8, timeline: [] },
-  { id: uid(), name: "صالون لمسات ذهبية", type: "صالون", city: "عمان", owner: "ريم الزبيدي", phone: "+962 7 7654 3210", email: "goldentouch@salon.jo", website: "", address: "الصويفية، عمان", instagram: "@goldentouchjo", facebook: "", tiktok: "@goldentouch_salon", websiteStatus: "موقع قديم / بحاجة تصميم", tier: "غني / فاخر", leadStatus: "تم البيع", priority: "medium", score: 50, notes: "تم الاتفاق على تصميم موقع + نظام حجز مواعيد", lastContact: "2026-06-10", dateAdded: Date.now() - 86400000 * 20, timeline: [] },
-  { id: uid(), name: "مصنع الوفاء للأثاث", type: "مصنع", city: "الزرقاء", owner: "حسن العبادي", phone: "+962 5 394 5566", email: "wafaa.furniture@outlook.com", website: "", address: "المنطقة الصناعية، الزرقاء", instagram: "", facebook: "@WafaaFurniture", tiktok: "", websiteStatus: "لا يوجد موقع", tier: "متوسط", leadStatus: "جديد", priority: "medium", score: 45, notes: "مصنع كبير، طاقة إنتاجية عالية — فرصة ممتازة", lastContact: "", dateAdded: Date.now() - 86400000 * 2, timeline: [] },
-  { id: uid(), name: "شركة التقنية الحديثة", type: "شركة", city: "عمان", owner: "نادر حداد", phone: "+962 6 585 9900", email: "info@moderntech.jo", website: "https://moderntech.jo", address: "شارع مكة، خلدا، عمان", instagram: "@moderntech_jo", facebook: "@ModernTechJordan", tiktok: "", websiteStatus: "موقع جيد / لا يحتاج", tier: "غني / فاخر", leadStatus: "رُفض", priority: "low", score: 15, notes: "لديهم قسم IT داخلي، غير مهتمين بالوقت الحالي", lastContact: "2026-05-30", dateAdded: Date.now() - 86400000 * 25, timeline: [] },
-  { id: uid(), name: "مطعم بيت الشام", type: "مطعم", city: "إربد", owner: "عبدالله الحمود", phone: "+962 2 727 1122", email: "beit.alsham@gmail.com", website: "", address: "حي الحسن، إربد", instagram: "@beit_alsham_irbid", facebook: "", tiktok: "", websiteStatus: "لا يوجد موقع", tier: "شعبي / اقتصادي", leadStatus: "مهتم", priority: "medium", score: 65, notes: "مطعم سوري شعبي، يريد القائمة الإلكترونية", lastContact: "2026-06-19", dateAdded: Date.now() - 86400000 * 6, timeline: [] },
-  { id: uid(), name: "كافيه ليالي عمان", type: "كافيه", city: "عمان", owner: "تيم خوري", phone: "+962 7 9988 7766", email: "layali.amman@cafe.jo", website: "https://layaliamman.com", address: "الرابية، عمان", instagram: "@layali_amman", facebook: "@LayaliAmmanCafe", tiktok: "@layali_amman", websiteStatus: "عميل حالي", tier: "غني / فاخر", leadStatus: "تم البيع", priority: "high", score: 20, notes: "عميل حالي — يريد تحديث الموقع القديم", lastContact: "2026-06-23", dateAdded: Date.now() - 86400000 * 45, timeline: [] },
-  { id: uid(), name: "مركز نجوم الأطفال", type: "أخرى", city: "السلط", owner: "منى العتيبي", phone: "+962 5 355 7788", email: "nujoom.kids@gmail.com", website: "", address: "وسط مدينة السلط", instagram: "@nujoom_kids_jo", facebook: "", tiktok: "", websiteStatus: "لا يوجد موقع", tier: "متوسط", leadStatus: "تم التواصل", priority: "medium", score: 48, notes: "مركز تعليمي للأطفال، مهتمة بموقع + حجز أونلاين", lastContact: "2026-06-17", dateAdded: Date.now() - 86400000 * 9, timeline: [] },
   { id: uid(), name: "معرض المدينة للسيارات", type: "محل سيارات", city: "عمان", owner: "رائد الخطيب", phone: "+962 6 549 3311", email: "madinah.cars@jo.com", website: "", address: "شارع الأردن، شميساني، عمان", instagram: "@madinah_cars", facebook: "@MadinahCarsJO", tiktok: "", websiteStatus: "موقع قديم / بحاجة تصميم", tier: "غني / فاخر", leadStatus: "مهتم", priority: "high", score: 72, notes: "معرض ضخم، يريد موقع احترافي مع فلترة المركبات", lastContact: "2026-06-21", dateAdded: Date.now() - 86400000 * 4, timeline: [] },
-  { id: uid(), name: "مصبغة الدولة", type: "أخرى", city: "الزرقاء", owner: "فارس البطاينة", phone: "+962 5 382 0099", email: "", website: "", address: "شارع أبو بكر الصديق، الزرقاء", instagram: "", facebook: "@AlDawlahLaundry", tiktok: "", websiteStatus: "لا يوجد موقع", tier: "شعبي / اقتصادي", leadStatus: "رُفض", priority: "low", score: 22, notes: "غير مهتم — أعاد الاتصال لاحقاً ربما", lastContact: "2026-06-01", dateAdded: Date.now() - 86400000 * 30, timeline: [] },
-  { id: uid(), name: "صالون برستيج للرجال", type: "صالون", city: "إربد", owner: "كريم منصور", phone: "+962 2 726 4455", email: "prestige.salon@gmail.com", website: "", address: "شارع الحسين، إربد", instagram: "@prestige_irbid", facebook: "", tiktok: "@prestige_men", websiteStatus: "لا يوجد موقع", tier: "متوسط", leadStatus: "جديد", priority: "low", score: 38, notes: "", lastContact: "", dateAdded: Date.now() - 86400000 * 1, timeline: [] },
-  { id: uid(), name: "مطعم الديرة الخليجي", type: "مطعم", city: "العقبة", owner: "سلطان المطيري", phone: "+962 3 203 1234", email: "aldirah@aqaba.jo", website: "", address: "شارع الملك الحسين، العقبة", instagram: "@aldirah_aqaba", facebook: "@AlDirahAqaba", tiktok: "", websiteStatus: "لا يوجد موقع", tier: "غني / فاخر", leadStatus: "مفاوضات", priority: "high", score: 82, notes: "مطعم سياحي فاخر — ميزانية جيدة لموقع راقي", lastContact: "2026-06-22", dateAdded: Date.now() - 86400000 * 7, timeline: [] },
-  { id: uid(), name: "محل ستايل كيدز", type: "محل ملابس", city: "عمان", owner: "لميس الداود", phone: "+962 7 8765 4321", email: "stylekids@gmail.com", website: "", address: "مجمع الجاردنز، عمان", instagram: "@stylekids_jo", facebook: "@StyleKidsJO", tiktok: "@stylekids", websiteStatus: "موقع قديم / بحاجة تصميم", tier: "متوسط", leadStatus: "تم التواصل", priority: "medium", score: 52, notes: "تريد متجر إلكتروني مع بوابة دفع محلية", lastContact: "2026-06-16", dateAdded: Date.now() - 86400000 * 12, timeline: [] },
+  { id: uid(), name: "صالون لمسات ذهبية", type: "صالون", city: "عمان", owner: "ريم الزبيدي", phone: "+962 7 7654 3210", email: "goldentouch@salon.jo", website: "", address: "الصويفية، عمان", instagram: "@goldentouchjo", facebook: "", tiktok: "@goldentouch_salon", websiteStatus: "موقع قديم / بحاجة تصميم", tier: "غني / فاخر", leadStatus: "تم البيع", priority: "medium", score: 50, notes: "تم الاتفاق على تصميم موقع + نظام حجز مواعيد", lastContact: "2026-06-10", dateAdded: Date.now() - 86400000 * 20, timeline: [] },
 ];
 
 // ===================================================
@@ -1373,9 +1362,13 @@ function openAddModal() {
   clearForm();
   document.getElementById('f-lastContact').value = new Date().toISOString().split('T')[0];
   showModal();
-  // Mobile tab highlight
-  document.getElementById('mTab-add')?.classList.add('active');
-  ['leads','dashboard','scraper'].forEach(v => document.getElementById(`mTab-${v}`)?.classList.remove('active'));
+  // Mobile tab: flash .active for 300ms so the user gets tap feedback
+  const addTab = document.getElementById('mTab-add');
+  if (addTab) {
+    ['leads','dashboard','scraper'].forEach(v => document.getElementById(`mTab-${v}`)?.classList.remove('active'));
+    addTab.classList.add('active');
+    setTimeout(() => addTab.classList.remove('active'), 300);
+  }
 }
 function openEditModal(id) {
   const lead = leads.find(l => l.id === id);
@@ -1403,6 +1396,14 @@ function closeLeadModal() {
 }
 function handleModalOverlayClick(e) {
   if (e.target === document.getElementById('leadModal')) closeLeadModal();
+}
+
+// Normalize social handles: prepend @ if missing
+function normalizeHandle(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const v = el.value.trim();
+  if (v && !v.startsWith('@') && !v.startsWith('http')) el.value = '@' + v;
 }
 
 function clearForm() {
@@ -1830,8 +1831,9 @@ document.addEventListener('keydown', (e) => {
 
   if (e.key === 'n' || e.key === 'N') { e.preventDefault(); openAddModal(); }
   if (e.key === '/' || e.key === 'f' || e.key === 'F') { e.preventDefault(); document.getElementById('globalSearch').focus(); }
-  if (e.key === 'ArrowRight' && currentView === 'leads') { goToPage(currentPage - 1); }
+  // RTL layout: pagination «next» button is on the LEFT, so ArrowLeft = next page
   if (e.key === 'ArrowLeft' && currentView === 'leads') { goToPage(currentPage + 1); }
+  if (e.key === 'ArrowRight' && currentView === 'leads') { goToPage(currentPage - 1); }
 });
 
 document.getElementById('globalSearch').addEventListener('input', () => applyFilters());
@@ -1866,11 +1868,20 @@ function renderDashboard() {
   const weekDelta = thisWeek >= lastWeek ? 'up' : 'down';
   const weekDeltaVal = lastWeek===0 ? (thisWeek>0?'+100%':'0%') : `${thisWeek>=lastWeek?'+':''}${Math.round(((thisWeek-lastWeek)/lastWeek)*100)}%`;
 
-  // Sparkline data: leads added per day for last 14 days
+  // Sparkline data: real per-day counts for the last 14 days
+  function dayBucket(i) {
+    const dayStart = new Date(); dayStart.setHours(0,0,0,0);
+    dayStart.setDate(dayStart.getDate() - (13 - i));
+    const dayEnd = new Date(dayStart); dayEnd.setDate(dayEnd.getDate() + 1);
+    return [dayStart.getTime(), dayEnd.getTime()];
+  }
   const sparkData = Array.from({length:14}, (_,i) => {
-    const day = Date.now() - (13-i)*86400000;
-    const nextDay = day + 86400000;
-    return leads.filter(l => l.dateAdded >= day && l.dateAdded < nextDay).length;
+    const [s,e] = dayBucket(i);
+    return leads.filter(l => l.dateAdded >= s && l.dateAdded < e).length;
+  });
+  const sparkWeek = Array.from({length:14}, (_,i) => {
+    const [s,e] = dayBucket(i);
+    return leads.filter(l => l.dateAdded >= s && l.dateAdded < e && Date.now()-l.dateAdded < 14*86400000).length;
   });
 
   grid.innerHTML = `
@@ -2000,21 +2011,17 @@ function renderDashboard() {
       document.querySelectorAll('.bar-fill').forEach(el => { el.style.width = `${el.dataset.pct}%`; });
     }, 50);
 
-    // Draw sparklines
+    // Draw sparklines — all using real lead dateAdded data
     drawSparkline('spark-total', sparkData);
-    // Week sparkline: last 14 days, only new leads (same data, just context)
-    drawSparkline('spark-week', sparkData);
-    // Sold sparkline
+    drawSparkline('spark-week', sparkWeek);
     const soldSpark = Array.from({length:14}, (_,i) => {
-      const day = Date.now() - (13-i)*86400000;
-      const nextDay = day + 86400000;
-      return leads.filter(l => l.leadStatus==='تم البيع' && l.dateAdded>=day && l.dateAdded<nextDay).length;
+      const [s,e] = dayBucket(i);
+      return leads.filter(l => l.leadStatus==='تم البيع' && l.dateAdded>=s && l.dateAdded<e).length;
     });
     drawSparkline('spark-sold', soldSpark, '#4a9d6f');
     const nositeSnap = Array.from({length:14}, (_,i) => {
-      const day = Date.now() - (13-i)*86400000;
-      const nextDay = day + 86400000;
-      return leads.filter(l => l.websiteStatus==='لا يوجد موقع' && l.dateAdded>=day && l.dateAdded<nextDay).length;
+      const [s,e] = dayBucket(i);
+      return leads.filter(l => l.websiteStatus==='لا يوجد موقع' && l.dateAdded>=s && l.dateAdded<e).length;
     });
     drawSparkline('spark-nosite', nositeSnap, '#e05252');
   });
@@ -2091,8 +2098,45 @@ function animateCounter(id, target) {
 // ===================================================
 //  GOOGLE PLACES SCRAPER (Real API)
 // ===================================================
-const CORS = 'https://corsproxy.io/?';
+const CORS_PRIMARY = 'https://corsproxy.io/?';
+const CORS_FALLBACK = 'https://api.allorigins.win/get?url=';
 const PLACES_BASE = 'https://maps.googleapis.com/maps/api/place';
+
+// Fetch via CORS proxy with automatic fallback
+async function corsGet(url) {
+  // Try primary proxy first
+  try {
+    const res = await fetch(CORS_PRIMARY + encodeURIComponent(url), {signal: AbortSignal.timeout(8000)});
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch(e) {
+    // Primary failed — try allorigins fallback
+    try {
+      showToast('جاري التحويل إلى خادم احتياطي...', 'info');
+      const res2 = await fetch(CORS_FALLBACK + encodeURIComponent(url), {signal: AbortSignal.timeout(10000)});
+      if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
+      const wrapper = await res2.json();
+      // allorigins wraps in { contents: "...json string..." }
+      return JSON.parse(wrapper.contents);
+    } catch(e2) {
+      throw new Error('فشل الاتصال — جرّب مرة أخرى أو تحقق من اتصالك بالإنترنت');
+    }
+  }
+}
+
+// getWebsiteRec: type-based Arabic recommendation for import notes
+function getWebsiteRec(type) {
+  const recs = {
+    'مطعم': 'يُنصح بموقع يعرض القائمة مع خدمة الحجز الإلكتروني',
+    'كافيه': 'يُنصح بموقع أنيق مع قائمة المشروبات وأوقات العمل',
+    'محل سيارات': 'يُنصح بموقع يعرض المركبات مع فلترة بالسعر والموديل',
+    'صالون': 'يُنصح بموقع مع نظام حجز مواعيد أونلاين',
+    'محل ملابس': 'يُنصح بمتجر إلكتروني مع معرض المنتجات وسلة شراء',
+    'مصنع': 'يُنصح بموقع تعريفي يعرض المنتجات وقدرات الإنتاج',
+    'شركة': 'يُنصح بموقع احترافي مع صفحة الخدمات وبيانات التواصل',
+  };
+  return recs[type] || 'يُنصح بموقع تعريفي احترافي يعكس هوية العلامة التجارية';
+}
 
 function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
@@ -2156,8 +2200,7 @@ async function runScraper() {
     setProgress(15, 'جاري البحث في Google Maps...', 'جاري إرسال الطلب...');
     const searchQuery = [query, city].filter(Boolean).join(' in ');
     const textSearchUrl = `${PLACES_BASE}/textsearch/json?query=${encodeURIComponent(searchQuery)}&language=ar&key=${key}`;
-    const searchRes = await fetch(CORS + encodeURIComponent(textSearchUrl));
-    const searchData = await searchRes.json();
+    const searchData = await corsGet(textSearchUrl);
 
     if (searchData.status === 'REQUEST_DENIED') { throw new Error('تم رفض الطلب — تأكد من صلاحيات المفتاح وتفعيل Places API'); }
     if (searchData.status === 'OVER_QUERY_LIMIT') { throw new Error('تجاوزت الحد اليومي للطلبات — حاول لاحقاً'); }
@@ -2176,8 +2219,7 @@ async function runScraper() {
 
       try {
         const detailUrl = `${PLACES_BASE}/details/json?place_id=${placeIds[i]}&fields=${detailsFields}&language=ar&key=${key}`;
-        const detRes = await fetch(CORS + encodeURIComponent(detailUrl));
-        const detData = await detRes.json();
+        const detData = await corsGet(detailUrl);
         if (detData.status === 'OK' && detData.result) {
           const r = detData.result;
           businesses.push({
@@ -2319,7 +2361,9 @@ function importSelected() {
       leadStatus: 'جديد',
       priority: b.priority || autoPriority(b),
       score: b.score || autoScore(b),
-      notes: `مستورد من Google Maps — تقييم: ${b.rating||0} (${b.reviewCount||0} تقييم)`,
+      notes: !b.hasWebsite
+        ? `${getWebsiteRec(b.type || 'أخرى')} | تقييم: ${b.rating||0} (${b.reviewCount||0} تقييم)`
+        : `مستورد من Google Maps — تقييم: ${b.rating||0} (${b.reviewCount||0} تقييم)`,
       lastContact: '',
       dateAdded: Date.now(),
       timeline: [{action:'تم الاستيراد من Google Maps', date:new Date().toISOString(), note:`نقاط الفرصة: ${b.score||0}`}]
