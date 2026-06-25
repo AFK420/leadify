@@ -628,42 +628,35 @@ canvas{display:block}
     <!-- ===== SCRAPER VIEW ===== -->
     <div id="view-scraper" class="view">
       <div style="margin-bottom:20px;">
-        <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:6px;">استيراد البيانات من Google Maps</h2>
-        <p style="font-size:0.875rem;color:var(--text-2);">يتطلب مفتاح Google Places API لجلب بيانات حقيقية</p>
-      </div>
-
-      <!-- API Key Box -->
-      <div class="scraper-api-box">
-        <div style="font-size:0.875rem;font-weight:600;color:var(--text-1);margin-bottom:6px;display:flex;align-items:center;gap:6px;">
-          <i data-lucide="key" width="15" height="15" style="color:var(--teal-2)"></i>
-          مفتاح Google Places API
-        </div>
-        <div class="scraper-api-row">
-          <div class="pw-field-wrap" style="flex:1">
-            <input type="password" class="form-input" id="apiKeyInput" placeholder="AIza..." dir="ltr" style="padding-left:36px">
-            <button class="pw-toggle" onclick="toggleApiKeyVisibility()" id="apiKeyToggle" title="إظهار/إخفاء">
-              <i data-lucide="eye" width="14" height="14"></i>
-            </button>
-          </div>
-          <button class="btn btn-secondary btn-sm" onclick="saveApiKey()">
-            <i data-lucide="check" width="14" height="14"></i> حفظ
-          </button>
-        </div>
-        <div class="api-note">
-          ⚠ المفتاح يُحفظ في الذاكرة فقط (لا يُخزن في المتصفح). احصل على مفتاحك مجاناً من
-          <a href="https://console.cloud.google.com" target="_blank" style="color:var(--teal-2)">console.cloud.google.com</a>
-          — فعّل "Places API" من المكتبة.
-        </div>
+        <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:6px;">استيراد البيانات من OpenStreetMap</h2>
+        <p style="font-size:0.875rem;color:var(--text-2);">يستخدم Leadify بيانات OpenStreetMap المجانية — لا يلزم مفتاح API</p>
       </div>
 
       <!-- Search Box -->
-      <div class="scraper-search">
-        <input type="text" class="form-input" id="scraperQuery" placeholder="نوع العمل (مطعم، كافيه، صالون...)" style="flex:1;min-width:140px;">
-        <input type="text" class="form-input" id="scraperCity" placeholder="المدينة أو المنطقة" style="flex:1;min-width:120px;">
-        <button class="btn btn-primary" onclick="runScraper()">
-          <i data-lucide="search" width="15" height="15"></i>
-          بحث واستيراد
-        </button>
+      <div class="scraper-search" style="flex-wrap:wrap">
+        <div style="flex:1;min-width:140px;">
+          <input type="text" class="form-input" id="scraperQuery" placeholder="نوع العمل (مطعم، كافيه، صالون...)" style="width:100%">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:var(--text-xs)">
+            <span style="color:var(--text-2)">أمثلة:</span>
+            <span style="cursor:pointer;color:var(--teal-2);background:var(--surface-2);padding:2px 8px;border-radius:12px;border:1px solid var(--border-1)" onclick="document.getElementById('scraperQuery').value=this.textContent">مطعم</span>
+            <span style="cursor:pointer;color:var(--teal-2);background:var(--surface-2);padding:2px 8px;border-radius:12px;border:1px solid var(--border-1)" onclick="document.getElementById('scraperQuery').value=this.textContent">كافيه</span>
+            <span style="cursor:pointer;color:var(--teal-2);background:var(--surface-2);padding:2px 8px;border-radius:12px;border:1px solid var(--border-1)" onclick="document.getElementById('scraperQuery').value=this.textContent">صالون</span>
+            <span style="cursor:pointer;color:var(--teal-2);background:var(--surface-2);padding:2px 8px;border-radius:12px;border:1px solid var(--border-1)" onclick="document.getElementById('scraperQuery').value=this.textContent">صيدلية</span>
+            <span style="cursor:pointer;color:var(--teal-2);background:var(--surface-2);padding:2px 8px;border-radius:12px;border:1px solid var(--border-1)" onclick="document.getElementById('scraperQuery').value=this.textContent">فندق</span>
+            <span style="cursor:pointer;color:var(--teal-2);background:var(--surface-2);padding:2px 8px;border-radius:12px;border:1px solid var(--border-1)" onclick="document.getElementById('scraperQuery').value=this.textContent">حلاقة</span>
+          </div>
+        </div>
+        <div style="flex:1;min-width:120px;position:relative">
+          <input type="text" class="form-input" id="scraperCity" placeholder="المدينة أو المنطقة" style="width:100%" onblur="checkCity()">
+          <div id="cityWarning" style="display:none;font-size:0.75rem;color:var(--orange);margin-top:6px;">⚠ المدينة غير معروفة — سيتم البحث في الأردن كله (قد يكون أبطأ)</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <button class="btn btn-primary" onclick="runScraper()">
+            <i data-lucide="search" width="15" height="15"></i>
+            بحث واستيراد
+          </button>
+          <span style="color:var(--text-3);font-size:var(--text-xs);">البيانات من OpenStreetMap · مجانية تماماً · لا يلزم تسجيل</span>
+        </div>
       </div>
 
       <!-- Error Box -->
@@ -933,7 +926,7 @@ let sortField = 'dateAdded';
 let sortDir = 'desc';
 let scraperSelected = new Set();
 let scraperResultsData = [];
-let googleApiKey = ''; // NEVER stored in localStorage
+// API Key no longer needed
 
 // ===================================================
 //  SAMPLE DATA (15 Jordanian Leads)
@@ -956,17 +949,21 @@ function autoScore(place) {
   const types = place.types || [];
   const priceLevel = place.price_level !== undefined ? place.price_level : (place.priceLevel || 0);
 
-  if (rating >= 4.5) score += 30;
-  else if (rating >= 4.0) score += 20;
-  else if (rating >= 3.5) score += 10;
+  if (rating > 0) {
+    if (rating >= 4.5) score += 30;
+    else if (rating >= 4.0) score += 20;
+    else if (rating >= 3.5) score += 10;
+  }
 
-  if (!hasWebsite) score += 35;
+  if (!hasWebsite) score += 40;
 
-  if (reviewCount > 100) score += 15;
-  else if (reviewCount > 20) score += 8;
+  if (reviewCount > 0) {
+    if (reviewCount > 100) score += 15;
+    else if (reviewCount > 20) score += 8;
+  }
 
-  const highDemand = ['restaurant','cafe','beauty_salon','car_dealer','clothing_store','lodging','gym','school','food'];
-  if (types.some(t => highDemand.includes(t))) score += 20;
+  const highDemand = ['restaurant','cafe','beauty_salon','car_dealer','clothing_store','lodging','gym','school','food','مطعم','كافيه','صالون','محل ملابس','محل سيارات','مصنع','فندق','صيدلية','بقالة','مخبز','حلويات','عيادة','بنك','حلاقة','أثاث','إلكترونيات'];
+  if (types.some(t => highDemand.includes(t))) score += 25;
 
   return Math.min(score, 100);
 }
@@ -2238,52 +2235,25 @@ function animateCounter(id, target) {
 // ===================================================
 //  GOOGLE PLACES SCRAPER (Real API)
 // ===================================================
-const CORS_PRIMARY = 'https://corsproxy.io/?';
-const CORS_FALLBACK = 'https://api.allorigins.win/get?url=';
-const PLACES_BASE = 'https://maps.googleapis.com/maps/api/place';
+const cityBoxes = {
+  'عمان':    [31.70, 35.70, 32.10, 36.10],
+  'إربد':    [32.50, 35.78, 32.62, 35.92],
+  'الزرقاء': [31.98, 35.95, 32.12, 36.08],
+  'العقبة':  [29.50, 34.92, 29.60, 35.05],
+  'السلط':   [31.98, 35.68, 32.10, 35.80],
+  'مادبا':   [31.68, 35.76, 31.78, 35.86],
+  'الكرك':   [31.16, 35.68, 31.26, 35.78],
+  'جرش':     [32.26, 35.86, 32.36, 35.96],
+};
 
-// Fetch via CORS proxy with automatic fallback
-async function corsGet(url) {
-  // Try primary proxy first
-  try {
-    const res = await fetch(CORS_PRIMARY + encodeURIComponent(url), {signal: AbortSignal.timeout(8000)});
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch(e) {
-    // Primary failed — try allorigins fallback
-    try {
-      showToast('جاري التحويل إلى خادم احتياطي...', 'info');
-      const res2 = await fetch(CORS_FALLBACK + encodeURIComponent(url), {signal: AbortSignal.timeout(10000)});
-      if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
-      const wrapper = await res2.json();
-      // allorigins wraps in { contents: "...json string..." }
-      return JSON.parse(wrapper.contents);
-    } catch(e2) {
-      throw new Error('فشل الاتصال — جرّب مرة أخرى أو تحقق من اتصالك بالإنترنت');
-    }
-  }
-}
-
-
-
-function saveApiKey() {
-  const key = document.getElementById('apiKeyInput').value.trim();
-  if (!key) { showToast('يرجى إدخال المفتاح أولاً', 'warning'); return; }
-  googleApiKey = key;
-  showToast('تم حفظ المفتاح في الجلسة الحالية', 'success');
-}
-
-function toggleApiKeyVisibility() {
-  const input = document.getElementById('apiKeyInput');
-  const toggle = document.getElementById('apiKeyToggle');
-  if (input.type === 'password') {
-    input.type = 'text';
-    toggle.querySelector('i').setAttribute('data-lucide','eye-off');
+function checkCity() {
+  const city = document.getElementById('scraperCity').value.trim();
+  const warning = document.getElementById('cityWarning');
+  if (city && !cityBoxes[city]) {
+    warning.style.display = 'block';
   } else {
-    input.type = 'password';
-    toggle.querySelector('i').setAttribute('data-lucide','eye');
+    warning.style.display = 'none';
   }
-  lucide.createIcons();
 }
 
 function showScraperError(msg) {
@@ -2293,109 +2263,123 @@ function showScraperError(msg) {
 }
 function hideScraperError() { document.getElementById('scraperErrorBox').classList.remove('visible'); }
 
-function setProgress(pct, msg, sub='') {
-  document.getElementById('scraperProgressBar').style.width = `${pct}%`;
-  document.getElementById('scraperStatus').textContent = msg;
-  if (sub) document.getElementById('scraperSub').textContent = sub;
+function showScraperLoading(isLoading) {
+  const progress = document.getElementById('scraperProgress');
+  const resultsWrap = document.getElementById('scraperResultsWrap');
+  if (isLoading) {
+    hideScraperError();
+    progress.classList.add('visible');
+    resultsWrap.style.display = 'none';
+    document.getElementById('scraperProgressBar').style.width = '50%';
+    document.getElementById('scraperStatus').textContent = 'جاري البحث...';
+    document.getElementById('scraperSub').textContent = 'يتم الاستعلام من OpenStreetMap';
+  } else {
+    progress.classList.remove('visible');
+    document.getElementById('scraperProgressBar').style.width = '0';
+    resultsWrap.style.display = 'block';
+  }
 }
 
 async function runScraper() {
   const query = document.getElementById('scraperQuery').value.trim();
   const city = document.getElementById('scraperCity').value.trim();
-  hideScraperError();
+  if (!query || !city) { showScraperError('يرجى إدخال نوع النشاط والمدينة'); return; }
 
-  // Check API key
-  const key = googleApiKey || document.getElementById('apiKeyInput').value.trim();
-  if (!key) {
-    showScraperError('⚠ يرجى إدخال Google Places API Key أولاً وحفظه');
-    return;
-  }
-  if (!query && !city) {
-    showScraperError('⚠ يرجى إدخال نوع العمل أو المدينة على الأقل');
-    return;
-  }
-
-  googleApiKey = key;
-  const progress = document.getElementById('scraperProgress');
-  const resultsWrap = document.getElementById('scraperResultsWrap');
-  progress.classList.add('visible');
-  resultsWrap.style.display = 'none';
-  scraperSelected.clear();
+  showScraperLoading(true);
   scraperResultsData = [];
+  scraperSelected.clear();
+
+  const typeMap = {
+    'مطعم':         'amenity=restaurant',
+    'كافيه':        'amenity=cafe',
+    'صالون':        'shop=hairdresser',
+    'محل ملابس':    'shop=clothes',
+    'محل سيارات':   'shop=car',
+    'مصنع':         'man_made=works',
+    'فندق':         'tourism=hotel',
+    'صيدلية':       'amenity=pharmacy',
+    'بقالة':        'shop=supermarket',
+    'مخبز':         'shop=bakery',
+    'حلويات':       'shop=confectionery',
+    'عيادة':        'amenity=clinic',
+    'بنك':          'amenity=bank',
+    'حلاقة':        'shop=barber',
+    'أثاث':         'shop=furniture',
+    'إلكترونيات':   'shop=electronics',
+  };
+
+  // If query matches a known type, use OSM tag; otherwise do name search
+  const osmTag = typeMap[query];
+  const box = cityBoxes[city];
+
+  let overpassQuery;
+  if (box) {
+    if (osmTag) {
+      overpassQuery = `[out:json][timeout:25];(node[${osmTag}](${box.join(',')});way[${osmTag}](${box.join(',')}););out body 20;`;
+    } else {
+      overpassQuery = `[out:json][timeout:25];(node["name"~"${query}",i](${box.join(',')});way["name"~"${query}",i](${box.join(',')}););out body 20;`;
+    }
+  } else {
+    // City not in list — search all of Jordan by name
+    overpassQuery = `[out:json][timeout:25];(node["name"~"${query}",i]["addr:city"~"${city}",i];way["name"~"${query}",i]["addr:city"~"${city}",i];);out body 20;`;
+  }
 
   try {
-    // Step 1: Text Search
-    setProgress(15, 'جاري البحث في Google Maps...', 'جاري إرسال الطلب...');
-    const searchQuery = [query, city].filter(Boolean).join(' in ');
-    const textSearchUrl = `${PLACES_BASE}/textsearch/json?query=${encodeURIComponent(searchQuery)}&language=ar&key=${key}`;
-    const searchData = await corsGet(textSearchUrl);
+    const res = await fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'data=' + encodeURIComponent(overpassQuery),
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
 
-    if (searchData.status === 'REQUEST_DENIED') { throw new Error('تم رفض الطلب — تأكد من صلاحيات المفتاح وتفعيل Places API'); }
-    if (searchData.status === 'OVER_QUERY_LIMIT') { throw new Error('تجاوزت الحد اليومي للطلبات — حاول لاحقاً'); }
-    if (searchData.status === 'INVALID_REQUEST') { throw new Error('طلب غير صالح — تحقق من معلمات البحث'); }
-    if (!searchData.results?.length) { throw new Error('لم يتم العثور على نتائج — جرب مصطلح بحث مختلف'); }
-
-    const placeIds = searchData.results.slice(0,10).map(r => r.place_id);
-    setProgress(30, `تم العثور على ${placeIds.length} نتيجة — جاري جلب التفاصيل...`, `جاري تحليل ${placeIds.length} مكان`);
-
-    // Step 2: Place Details for each
-    const detailsFields = 'name,formatted_phone_number,website,rating,user_ratings_total,formatted_address,types,price_level';
-    const businesses = [];
-    for (let i = 0; i < placeIds.length; i++) {
-      const pct = 30 + Math.round((i+1)/placeIds.length * 60);
-      setProgress(pct, `جاري جلب تفاصيل المكان ${i+1} من ${placeIds.length}...`, placeIds[i]);
-
-      try {
-        const detailUrl = `${PLACES_BASE}/details/json?place_id=${placeIds[i]}&fields=${detailsFields}&language=ar&key=${key}`;
-        const detData = await corsGet(detailUrl);
-        if (detData.status === 'OK' && detData.result) {
-          const r = detData.result;
-          businesses.push({
-            place_id: placeIds[i],
-            name: r.name || searchData.results[i]?.name || 'غير محدد',
-            phone: r.formatted_phone_number || '',
-            address: r.formatted_address || searchData.results[i]?.formatted_address || '',
-            rating: r.rating || searchData.results[i]?.rating || 0,
-            reviewCount: r.user_ratings_total || searchData.results[i]?.user_ratings_total || 0,
-            hasWebsite: !!r.website,
-            website: r.website || '',
-            types: r.types || [],
-            priceLevel: r.price_level || 0,
-            city: city || '',
-            instagram: '',
-          });
-        }
-      } catch(detErr) {
-        // Skip individual place failures silently
-      }
+    if (!data.elements?.length) {
+      showScraperError('لم يتم العثور على نتائج — جرّب نوع نشاط مختلف أو مدينة أخرى');
+      showScraperLoading(false); return;
     }
 
-    if (!businesses.length) throw new Error('لم يتم استخراج بيانات كافية — حاول مرة أخرى');
+    scraperResultsData = data.elements.map(el => {
+      const t = el.tags || {};
+      const phone = t.phone || t['contact:phone'] || t['phone:jo'] || '';
+      const website = t.website || t['contact:website'] || t['url'] || '';
+      const name = t.name || t['name:ar'] || t['name:en'] || 'بدون اسم';
+      const address = [t['addr:street'], t['addr:housenumber'], t['addr:city'] || city].filter(Boolean).join('، ');
+      const instagram = t['contact:instagram'] || '';
+      const facebook = t['contact:facebook'] || '';
 
-    // Step 3: Calculate scores and render
-    setProgress(95, 'جاري حساب نقاط الفرصة...', 'اكتمل!');
-    const enriched = businesses.map(b => ({
-      ...b,
-      score: autoScore(b),
-      tier: autoTier(b),
-      priority: autoPriority(b),
-      websiteStatus: b.hasWebsite ? 'موقع جيد / لا يحتاج' : 'لا يوجد موقع',
-      type: mapGoogleType(b.types),
-    })).sort((a,b) => b.score - a.score);
+      const b = {
+        name,
+        phone: phone.replace(/\s+/g, '').replace(/^00962/, '+962').replace(/^0/, '+9626'),
+        website,
+        address: address || city,
+        instagram: instagram ? (instagram.startsWith('@') ? instagram : '@' + instagram) : '',
+        facebook,
+        hasWebsite: !!website,
+        rating: 0,
+        reviewCount: 0,
+        priceLevel: 0,
+        types: [query],
+        type: query,
+        city,
+      };
+      b.score = autoScore(b);
+      b.tier = autoTier(b);
+      b.priority = autoPriority(b);
+      return b;
+    });
 
-    setProgress(100, 'اكتمل البحث!', '');
-    setTimeout(() => {
-      progress.classList.remove('visible');
-      document.getElementById('scraperProgressBar').style.width = '0';
-      scraperResultsData = enriched;
-      renderScraperResults(enriched);
-      resultsWrap.style.display = 'block';
-    }, 600);
+    renderScraperResults(scraperResultsData);
+    // Auto-select results that are not duplicates
+    scraperResultsData.forEach((b, i) => {
+      if (!leads.some(l => fuzzyMatchSimple(l.name, b.name))) scraperSelected.add(i);
+    });
+    updateImportBtn();
 
   } catch(err) {
-    progress.classList.remove('visible');
-    document.getElementById('scraperProgressBar').style.width = '0';
-    showScraperError(`❌ خطأ: ${err.message || 'فشل الاتصال بـ Google Places — تحقق من مفتاح API والاتصال بالإنترنت'}`);
+    showScraperError(`❌ خطأ: ${err.message || 'فشل الاتصال بـ Overpass API — تحقق من اتصالك بالإنترنت'}`);
+  } finally {
+    showScraperLoading(false);
   }
 }
 
