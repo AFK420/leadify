@@ -1289,6 +1289,7 @@ function renderTable() {
         <div class="row-actions">
           <button class="action-btn" onclick="openDetail('${lead.id}')" title="عرض"><i data-lucide="eye" width="14" height="14"></i></button>
           <button class="action-btn" onclick="openEditModal('${lead.id}')" title="تعديل"><i data-lucide="edit-2" width="14" height="14"></i></button>
+          <button class="action-btn" onclick="copyWhatsApp('${lead.id}')" title="واتساب"><img src="https://cdn.simpleicons.org/whatsapp/25D366" width="14" height="14" alt="WA"></button>
           <button class="action-btn danger" onclick="deleteLead('${lead.id}')" title="حذف"><i data-lucide="trash-2" width="14" height="14"></i></button>
         </div>
       </td>
@@ -1657,7 +1658,13 @@ function openDetail(id) {
 
     <div class="detail-section">
       <div class="detail-section-title">معلومات الاتصال</div>
-      <div class="detail-row"><span class="detail-key">الهاتف</span><span class="detail-val" dir="ltr">${lead.phone||'—'}</span></div>
+      <div class="detail-row">
+        <span class="detail-key">الهاتف</span>
+        <span class="detail-val" dir="ltr" style="display:flex;align-items:center;gap:6px">
+          ${lead.phone||'—'}
+          ${lead.phone ? `<button class="action-btn" onclick="copyWhatsApp('${id}')" title="واتساب" style="padding:2px"><img src="https://cdn.simpleicons.org/whatsapp/25D366" width="14" height="14" alt="WA"></button>` : ''}
+        </span>
+      </div>
       <div class="detail-row"><span class="detail-key">البريد</span><span class="detail-val" dir="ltr">${lead.email||'—'}</span></div>
       <div class="detail-row"><span class="detail-key">الموقع</span><span class="detail-val">${lead.website ? `<a href="${lead.website}" target="_blank" style="color:var(--teal-2)">${lead.website}</a>` : '—'}</span></div>
       <div class="detail-row"><span class="detail-key">العنوان</span><span class="detail-val">${lead.address||'—'}</span></div>
@@ -1770,6 +1777,17 @@ function ctxDelete() { if (contextTargetId) deleteLead(contextTargetId); }
 function copyPhone(phone, e) {
   e.stopPropagation();
   navigator.clipboard.writeText(phone).then(() => showToast('تم نسخ رقم الهاتف', 'success'));
+}
+
+function copyWhatsApp(id) {
+  const lead = leads.find(l => l.id === id);
+  if (!lead || !lead.phone) {
+    showToast('لا يوجد رقم هاتف', 'error');
+    return;
+  }
+  const waNum = lead.phone.replace(/\s+/g, '').replace(/^\+/, '');
+  window.open(`https://wa.me/${waNum}`, '_blank');
+  showToast('تم فتح واتساب', 'success');
 }
 
 // ===================================================
