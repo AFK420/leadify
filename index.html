@@ -1705,8 +1705,11 @@ function openDetail(id) {
     ${lead.notes ? `<div class="detail-section"><div class="detail-section-title">الملاحظات</div><div style="font-size:0.875rem;color:var(--text-2);line-height:1.7;background:var(--surface-2);padding:12px;border-radius:var(--radius)">${lead.notes}</div></div>` : ''}
 
     <div class="detail-section">
-      <div class="detail-section-title">سجل التواصل</div>
-      <div class="timeline">
+      <div class="detail-section-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>سجل التواصل</span>
+        ${timeline.length >= 5 ? `<input type="text" class="form-input" id="timelineSearch" placeholder="ابحث في السجل..." dir="rtl" style="font-size:var(--text-xs);padding:6px 10px;width:140px;margin-bottom:4px" oninput="filterTimeline()">` : ''}
+      </div>
+      <div class="timeline" id="timelineContainer">
         ${timeline.length ? timeline.map(t => `
           <div class="timeline-item">
             <div class="timeline-dot active"><i data-lucide="check" width="10" height="10"></i></div>
@@ -1715,6 +1718,7 @@ function openDetail(id) {
               <div class="timeline-date">${formatDate(t.date?t.date.split('T')[0]:'')} ${t.note?'— '+t.note:''}</div>
             </div>
           </div>`).join('') : '<div style="font-size:0.875rem;color:var(--text-3)">لا يوجد سجل تواصل بعد</div>'}
+        <div id="timelineEmpty" style="display:none;font-size:0.875rem;color:var(--text-3);padding-top:8px">لا توجد نتائج</div>
       </div>
     </div>
 
@@ -1732,7 +1736,28 @@ function openDetail(id) {
 function closeDetail() {
   document.getElementById('detailOverlay').classList.remove('open');
   document.getElementById('detailDrawer').classList.remove('open');
+  const searchInput = document.getElementById('timelineSearch');
+  if (searchInput) searchInput.value = '';
   detailLeadId = null;
+}
+
+function filterTimeline() {
+  const input = document.getElementById('timelineSearch');
+  if (!input) return;
+  const q = input.value.trim().toLowerCase();
+  const items = document.querySelectorAll('#timelineContainer .timeline-item');
+  let hasMatch = false;
+  items.forEach(el => {
+    const text = el.textContent.toLowerCase();
+    if (text.includes(q)) {
+      el.style.display = 'flex';
+      hasMatch = true;
+    } else {
+      el.style.display = 'none';
+    }
+  });
+  const emptyMsg = document.getElementById('timelineEmpty');
+  if (emptyMsg) emptyMsg.style.display = hasMatch || items.length === 0 ? 'none' : 'block';
 }
 
 function logContact(id) {
