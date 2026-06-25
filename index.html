@@ -449,6 +449,7 @@ canvas{display:block}
       <i data-lucide="list" class="nav-icon" width="16" height="16"></i>
       <span>العملاء المحتملين</span>
       <span class="nav-badge" id="navLeadsCount">0</span>
+      <span class="nav-badge badge-orange" id="navFollowUpCount" style="margin-right:4px;display:none;" title="متابعة مطلوبة">0</span>
     </div>
     <div class="nav-item" data-view="dashboard" onclick="switchView('dashboard')">
       <i data-lucide="layout-dashboard" class="nav-icon" width="16" height="16"></i>
@@ -769,7 +770,7 @@ canvas{display:block}
           </div>
           <div class="form-group full">
             <label class="form-label">الموقع الإلكتروني</label>
-            <input type="text" class="form-input" id="f-website" placeholder="https://..." dir="ltr">
+            <input type="text" class="form-input" id="f-website" placeholder="https://..." dir="ltr" onblur="normalizeUrl('f-website')">
           </div>
           <div class="form-group full">
             <label class="form-label">العنوان</label>
@@ -1242,6 +1243,7 @@ function renderTable() {
         <div class="biz-name">
           <span style="cursor:pointer" onclick="openDetail('${lead.id}')">${lead.name}</span>
           ${hasDup ? '<span class="dup-badge">⚠ مكرر</span>' : ''}
+          ${needsFollowUp(lead) ? '<span class="badge badge-orange" style="margin-right:6px;font-size:0.6rem;padding:2px 4px">متابعة</span>' : ''}
         </div>
         <div style="font-size:0.75rem;color:var(--text-3)">${lead.owner||'—'}</div>
       </td>
@@ -1304,8 +1306,25 @@ function goToPage(p) {
   renderTable();
 }
 
+function needsFollowUp(lead) {
+  if (lead.leadStatus === 'تم البيع' || lead.leadStatus === 'رُفض') return false;
+  if (!lead.lastContact) return false;
+  const last = new Date(lead.lastContact).getTime();
+  return (Date.now() - last) > 7 * 86400000;
+}
+
 function updateNavBadge() {
   document.getElementById('navLeadsCount').textContent = leads.length;
+  const followUpCount = leads.filter(needsFollowUp).length;
+  const badge = document.getElementById('navFollowUpCount');
+  if (badge) {
+    if (followUpCount > 0) {
+      badge.textContent = followUpCount;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
 }
 
 // ===================================================
@@ -1404,6 +1423,14 @@ function normalizeHandle(id) {
   if (!el) return;
   const v = el.value.trim();
   if (v && !v.startsWith('@') && !v.startsWith('http')) el.value = '@' + v;
+}
+
+// Normalize URL: prepend https:// if missing
+function normalizeUrl(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const v = el.value.trim();
+  if (v && !v.startsWith('http')) el.value = 'https://' + v;
 }
 
 function clearForm() {
@@ -1879,9 +1906,13 @@ function renderDashboard() {
     const [s,e] = dayBucket(i);
     return leads.filter(l => l.dateAdded >= s && l.dateAdded < e).length;
   });
-  const sparkWeek = Array.from({length:14}, (_,i) => {
-    const [s,e] = dayBucket(i);
-    return leads.filter(l => l.dateAdded >= s && l.dateAdded < e && Date.now()-l.dateAdded < 14*86400000).length;
+  const sparkWeek = Array.from({length:7}, (_,i) => {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    const day = d.getDay() || 7; // make Sunday 7 instead of 0
+    d.setDate(d.getDate() - day + 1 + i); // 0 = Mon, 6 = Sun
+    const s = d.getTime();
+    return leads.filter(l => l.dateAdded >= s && l.dateAdded < s+86400000).length;
   });
 
   grid.innerHTML = `
@@ -2124,19 +2155,7 @@ async function corsGet(url) {
   }
 }
 
-// getWebsiteRec: type-based Arabic recommendation for import notes
-function getWebsiteRec(type) {
-  const recs = {
-    'مطعم': 'يُنصح بموقع يعرض القائمة مع خدمة الحجز الإلكتروني',
-    'كافيه': 'يُنصح بموقع أنيق مع قائمة المشروبات وأوقات العمل',
-    'محل سيارات': 'يُنصح بموقع يعرض المركبات مع فلترة بالسعر والموديل',
-    'صالون': 'يُنصح بموقع مع نظام حجز مواعيد أونلاين',
-    'محل ملابس': 'يُنصح بمتجر إلكتروني مع معرض المنتجات وسلة شراء',
-    'مصنع': 'يُنصح بموقع تعريفي يعرض المنتجات وقدرات الإنتاج',
-    'شركة': 'يُنصح بموقع احترافي مع صفحة الخدمات وبيانات التواصل',
-  };
-  return recs[type] || 'يُنصح بموقع تعريفي احترافي يعكس هوية العلامة التجارية';
-}
+
 
 function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
@@ -2362,7 +2381,7 @@ function importSelected() {
       priority: b.priority || autoPriority(b),
       score: b.score || autoScore(b),
       notes: !b.hasWebsite
-        ? `${getWebsiteRec(b.type || 'أخرى')} | تقييم: ${b.rating||0} (${b.reviewCount||0} تقييم)`
+        ? `${getWebsiteRecommendation(b.type || 'أخرى')} | تقييم: ${b.rating||0} (${b.reviewCount||0} تقييم)`
         : `مستورد من Google Maps — تقييم: ${b.rating||0} (${b.reviewCount||0} تقييم)`,
       lastContact: '',
       dateAdded: Date.now(),
