@@ -546,6 +546,7 @@ canvas{display:block}
             <option value="score-desc">النقاط</option>
             <option value="status-asc">الحالة</option>
           </select>
+          <button class="filter-toggle-chip" id="btnFilterFollowUp" onclick="toggleFollowUpFilter()">يحتاج متابعة 🔔</button>
         </div>
         <span class="results-count" id="resultsCount"></span>
         <button class="btn btn-secondary btn-sm" onclick="exportCSV()">
@@ -905,6 +906,7 @@ canvas{display:block}
 // ===================================================
 let leads = [];
 let filteredLeads = [];
+let filterFollowUp = false;
 let currentPage = 1;
 const PAGE_SIZE = 20;
 let currentEditId = null;
@@ -1127,6 +1129,7 @@ function applyFilters() {
       (l.city||'').toLowerCase().includes(search) ||
       (l.owner||'').toLowerCase().includes(search)
     )) return false;
+    if (filterFollowUp && !needsFollowUp(l)) return false;
     if (type && l.type !== type) return false;
     if (city && l.city !== city) return false;
     if (website && l.websiteStatus !== website) return false;
@@ -1152,11 +1155,29 @@ function applyFilters() {
   currentPage = 1;
   renderTable();
   updateActiveFilters();
-  const hasFilters = search || type || city || website || status || tier || priority;
+  const hasFilters = search || type || city || website || status || tier || priority || filterFollowUp;
   document.getElementById('clearFiltersBtn').style.display = hasFilters ? 'flex' : 'none';
+
+  const chip = document.getElementById('btnFilterFollowUp');
+  if (chip) {
+    if (filterFollowUp) {
+      chip.classList.add('active');
+      const fc = leads.filter(needsFollowUp).length;
+      chip.textContent = `يحتاج متابعة (${fc})`;
+    } else {
+      chip.classList.remove('active');
+      chip.textContent = 'يحتاج متابعة 🔔';
+    }
+  }
+}
+
+function toggleFollowUpFilter() {
+  filterFollowUp = !filterFollowUp;
+  applyFilters();
 }
 
 function clearAllFilters() {
+  filterFollowUp = false;
   document.getElementById('globalSearch').value = '';
   ['filterType','filterCity','filterWebsite','filterStatus','filterTier','filterPriority'].forEach(id => {
     document.getElementById(id).value = '';
