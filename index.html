@@ -214,7 +214,11 @@ tbody tr:hover .row-actions{opacity:1}
 .step-item{display:flex;align-items:center;flex:1}
 .step-circle{width:28px;height:28px;border-radius:50%;background:var(--surface-3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--text-3);transition:all var(--transition);flex-shrink:0}
 .step-circle.active{background:var(--teal);border-color:var(--teal);color:#fff}
-.step-circle.done{background:var(--teal-dim);border-color:var(--teal);color:var(--teal-2)}
+.filter-toggle-chip.active{background:var(--orange-dim);border-color:rgba(224,120,50,0.4);color:var(--orange)}
+.dash-range-toggle{display:flex;background:var(--surface-2);padding:4px;border-radius:24px;border:1px solid var(--border-1);gap:2px}
+.dash-range-btn{background:transparent;color:var(--text-2);border:none;padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all var(--transition)}
+.dash-range-btn:hover{color:var(--text-1)}
+.dash-range-btn.active{background:var(--teal-2);color:#fff;box-shadow:0 2px 8px rgba(1,105,111,0.2)}
 .step-line{flex:1;height:2px;background:var(--border);transition:background var(--transition)}
 .step-line.done{background:var(--teal)}
 
@@ -609,6 +613,15 @@ canvas{display:block}
 
     <!-- ===== DASHBOARD VIEW ===== -->
     <div id="view-dashboard" class="view">
+      <div class="dash-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h2 style="font-size:1.25rem;font-weight:700;">الإحصائيات</h2>
+        <div class="dash-range-toggle" id="dashRangeToggle">
+          <button class="dash-range-btn active" data-range="all" onclick="setDashRange('all')">الكل</button>
+          <button class="dash-range-btn" data-range="90" onclick="setDashRange('90')">90 يوم</button>
+          <button class="dash-range-btn" data-range="30" onclick="setDashRange('30')">30 يوم</button>
+          <button class="dash-range-btn" data-range="7" onclick="setDashRange('7')">7 أيام</button>
+        </div>
+      </div>
       <div class="bento-grid" id="dashGrid"></div>
     </div>
 
@@ -907,6 +920,7 @@ canvas{display:block}
 let leads = [];
 let filteredLeads = [];
 let filterFollowUp = false;
+let dashRange = 'all';
 let currentPage = 1;
 const PAGE_SIZE = 20;
 let currentEditId = null;
@@ -1907,28 +1921,44 @@ document.getElementById('globalSearch').addEventListener('input', () => applyFil
 // ===================================================
 //  DASHBOARD
 // ===================================================
+function setDashRange(val) {
+  dashRange = val;
+  document.querySelectorAll('.dash-range-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.range === val);
+  });
+  renderDashboard();
+}
+
 function renderDashboard() {
   const grid = document.getElementById('dashGrid');
-  const total = leads.length;
-  const thisWeek = leads.filter(l => Date.now()-l.dateAdded < 7*86400000).length;
-  const lastWeek = leads.filter(l => { const d=Date.now()-l.dateAdded; return d>=7*86400000&&d<14*86400000; }).length;
-  const sold = leads.filter(l => l.leadStatus==='تم البيع').length;
-  const noSite = leads.filter(l => l.websiteStatus==='لا يوجد موقع').length;
+  
+  let dashLeads = leads;
+  if (dashRange !== 'all') {
+    const days = parseInt(dashRange, 10);
+    const cutoff = Date.now() - (days * 86400000);
+    dashLeads = leads.filter(l => l.dateAdded >= cutoff);
+  }
+
+  const total = dashLeads.length;
+  const thisWeek = dashLeads.filter(l => Date.now()-l.dateAdded < 7*86400000).length;
+  const lastWeek = dashLeads.filter(l => { const d=Date.now()-l.dateAdded; return d>=7*86400000&&d<14*86400000; }).length;
+  const sold = dashLeads.filter(l => l.leadStatus==='تم البيع').length;
+  const noSite = dashLeads.filter(l => l.websiteStatus==='لا يوجد موقع').length;
 
   const statusCounts = {};
-  leads.forEach(l => { statusCounts[l.leadStatus]=(statusCounts[l.leadStatus]||0)+1; });
+  dashLeads.forEach(l => { statusCounts[l.leadStatus]=(statusCounts[l.leadStatus]||0)+1; });
   const typeCounts = {};
-  leads.forEach(l => { typeCounts[l.type]=(typeCounts[l.type]||0)+1; });
+  dashLeads.forEach(l => { typeCounts[l.type]=(typeCounts[l.type]||0)+1; });
   const cityCounts = {};
-  leads.forEach(l => { if(l.city) cityCounts[l.city]=(cityCounts[l.city]||0)+1; });
+  dashLeads.forEach(l => { if(l.city) cityCounts[l.city]=(cityCounts[l.city]||0)+1; });
   const wsCounts = {};
-  leads.forEach(l => { wsCounts[l.websiteStatus]=(wsCounts[l.websiteStatus]||0)+1; });
+  dashLeads.forEach(l => { wsCounts[l.websiteStatus]=(wsCounts[l.websiteStatus]||0)+1; });
   const tierCounts = {'غني / فاخر':0,'متوسط':0,'شعبي / اقتصادي':0};
-  leads.forEach(l => { if(tierCounts[l.tier]!==undefined) tierCounts[l.tier]++; });
+  dashLeads.forEach(l => { if(tierCounts[l.tier]!==undefined) tierCounts[l.tier]++; });
 
   const topCities = Object.entries(cityCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const maxCity = topCities[0]?.[1]||1;
-  const topLeads = leads.filter(l=>l.priority==='high').sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,5);
+  const topLeads = dashLeads.filter(l=>l.priority==='high').sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,5);
   const statusColors = {'جديد':'#94a3b8','تم التواصل':'#4f98a3','مهتم':'#c9a227','مفاوضات':'#d97706','تم البيع':'#4a9d6f','رُفض':'#e05252'};
   const wsColors = {'لا يوجد موقع':'#e05252','موقع قديم / بحاجة تصميم':'#e07832','موقع جيد / لا يحتاج':'#4a9d6f','عميل حالي':'#4f98a3'};
   const weekDelta = thisWeek >= lastWeek ? 'up' : 'down';
@@ -1943,7 +1973,7 @@ function renderDashboard() {
   }
   const sparkData = Array.from({length:14}, (_,i) => {
     const [s,e] = dayBucket(i);
-    return leads.filter(l => l.dateAdded >= s && l.dateAdded < e).length;
+    return dashLeads.filter(l => l.dateAdded >= s && l.dateAdded < e).length;
   });
   const sparkWeek = Array.from({length:7}, (_,i) => {
     const d = new Date();
@@ -1951,7 +1981,7 @@ function renderDashboard() {
     const day = d.getDay() || 7; // make Sunday 7 instead of 0
     d.setDate(d.getDate() - day + 1 + i); // 0 = Mon, 6 = Sun
     const s = d.getTime();
-    return leads.filter(l => l.dateAdded >= s && l.dateAdded < s+86400000).length;
+    return dashLeads.filter(l => l.dateAdded >= s && l.dateAdded < s+86400000).length;
   });
 
   grid.innerHTML = `
