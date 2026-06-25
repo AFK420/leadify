@@ -1907,6 +1907,21 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  if (e.ctrlKey && (e.key.toLowerCase() === 's' || e.code === 'KeyS')) {
+    e.preventDefault();
+    if (modalIsOpen) {
+      if (!validateStep(1)) {
+        currentStep = 1; updateStepUI();
+      } else if (!validateStep(2)) {
+        currentStep = 2; updateStepUI();
+      } else {
+        saveLead();
+        showToast('⌨ تم الحفظ بـ Ctrl+S', 'success');
+      }
+    }
+    return;
+  }
+
   if (inInput) return;
 
   if (e.key === 'n' || e.key === 'N') { e.preventDefault(); openAddModal(); }
